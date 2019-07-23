@@ -129,6 +129,7 @@ class TrackingState extends State<TrackingInput> {
     });
   }
 
+  ///toggle on the settings tray to open or close
   void _toggleTray(bool shouldOpen){
     setState(() {
       if (shouldOpen == false) {
