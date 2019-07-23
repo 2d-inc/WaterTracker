@@ -5,25 +5,31 @@ import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
 
 class AnimationControls extends FlareController {
+  ///so we can reference this any where once we declare it
   FlutterActorArtboard _artboard;
 
+  ///our fill animation, so we can animate this each time we add/reduce water intake
   ActorAnimation _fillAnimation;
+
+  ///our ice cube that moves on the Y Axis based on current water intake
   ActorAnimation _iceboyMoveY;
 
+  ///used for mixing animations
   final List<FlareAnimationLayer> _baseAnimations = [];
 
-  String _animationName;
-
+  ///our overall fill
   double _waterFill = 0.00;
+  ///current amount of water consumed
   double _currentWaterFill = 0;
 
+  ///time used to smooth the fill line movement
   double _smoothTime = 5;
 
   void initialize(FlutterActorArtboard artboard) {
+   //get the reference here on start to our animations and artboard
     _artboard = artboard;
     _fillAnimation = artboard.getAnimation("water up");
     _iceboyMoveY = artboard.getAnimation("iceboy_move_up");
-
   }
 
   void setViewTransform(Mat2D viewTransform) {}
@@ -49,39 +55,31 @@ class AnimationControls extends FlareController {
     }
     return true;
   }
-
+  ///called from the 'tracking_input'
+  ///mixes animations
   void mixAnimation(String animName){
     ActorAnimation animation = _artboard.getAnimation(animName);
 
     if (animation != null) {
       _baseAnimations.add(FlareAnimationLayer()
-        ..name = _animationName
+        ..name = animName
         ..animation = animation
       );
     }
 
   }
-  void mixAnimationOverride(String animName, double time){
-    ActorAnimation animation = _artboard.getAnimation(animName);
-
-    if (animation != null) {
-      _baseAnimations.add(FlareAnimationLayer()
-        ..time = time
-        ..name = _animationName
-        ..animation = animation
-        ..mix = 1);
-    }
-
-  }
+  ///called from the 'tracking_input'
+  ///updates the water fill line
   void updateWaterPercent(double amt){
 
-    //TODO: ask Luigi: why no loop? mixAnimation("iceboy");
     _waterFill = amt;
 
   }
+  ///called from the 'tracking_input'
+  ///resets the water fill line
   void resetWater(){
 
     _waterFill = 0;
   }
-
 }
+
