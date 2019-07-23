@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'tracking_input.dart';
 import 'package:flutter/services.dart';
 
-//void main() => runApp(MyApp());
-
 void main() {
   ///let's remove the Android buttons. For the purpose of this app, we don't need/want em on screen!
      SystemChrome.setEnabledSystemUIOverlays([]);

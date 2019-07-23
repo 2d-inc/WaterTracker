@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:flare_dart/math/vec2d.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare_actor.dart';
@@ -10,9 +9,6 @@ class AnimationControls extends FlareController {
 
   ActorAnimation _fillAnimation;
   ActorAnimation _iceboyMoveY;
-  ActorAnimation _iceboyRotate;
-  ActorAnimation _tempAnim;
-  ActorNode _iceBoy;
 
   final List<FlareAnimationLayer> _baseAnimations = [];
 
@@ -73,7 +69,7 @@ class AnimationControls extends FlareController {
         ..time = time
         ..name = _animationName
         ..animation = animation
-        ..mix = .29);
+        ..mix = 1);
     }
 
   }
