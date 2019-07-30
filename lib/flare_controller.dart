@@ -27,9 +27,14 @@ class AnimationControls extends FlareController {
 
   void initialize(FlutterActorArtboard artboard) {
    //get the reference here on start to our animations and artboard
-    _artboard = artboard;
-    _fillAnimation = artboard.getAnimation("water up");
-    _iceboyMoveY = artboard.getAnimation("iceboy_move_up");
+
+    if(artboard.name.compareTo("Artboard") == 0){
+      _artboard = artboard;
+
+      _fillAnimation = artboard.getAnimation("water up");
+      _iceboyMoveY = artboard.getAnimation("iceboy_move_up");
+    }
+
   }
 
   void setViewTransform(Mat2D viewTransform) {}
@@ -37,17 +42,19 @@ class AnimationControls extends FlareController {
   bool advance(FlutterActorArtboard artboard, double elapsed) {
     //we need this separate from our generic mixing animations,
     // b/c the animation duration is needed in this calculation
-    _currentWaterFill += (_waterFill-_currentWaterFill) * min(1, elapsed * _smoothTime);
-    _fillAnimation.apply( _currentWaterFill * _fillAnimation.duration, artboard, 1);
-    _iceboyMoveY.apply(_currentWaterFill * _iceboyMoveY.duration, artboard, 1);
-
+    if(artboard.name.compareTo("Artboard") == 0){
+      _currentWaterFill += (_waterFill-_currentWaterFill) * min(1, elapsed *
+          _smoothTime);
+      _fillAnimation.apply( _currentWaterFill * _fillAnimation.duration, artboard, 1);
+      _iceboyMoveY.apply(_currentWaterFill * _iceboyMoveY.duration, artboard, 1);
+    }
 
     int len = _baseAnimations.length - 1;
     for (int i = len; i >= 0; i--) {
       FlareAnimationLayer layer = _baseAnimations[i];
       layer.time += elapsed;
       layer.mix = min(1.0, layer.time / 0.01);
-      layer.apply(artboard);
+      layer.apply(_artboard);
 
       if (layer.isDone) {
         _baseAnimations.removeAt(i);
@@ -55,9 +62,9 @@ class AnimationControls extends FlareController {
     }
     return true;
   }
+
   ///called from the 'tracking_input'
-  ///mixes animations
-  void mixAnimation(String animName){
+  void playAnimation(String animName){
     ActorAnimation animation = _artboard.getAnimation(animName);
 
     if (animation != null) {
@@ -66,7 +73,6 @@ class AnimationControls extends FlareController {
         ..animation = animation
       );
     }
-
   }
   ///called from the 'tracking_input'
   ///updates the water fill line

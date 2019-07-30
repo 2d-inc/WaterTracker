@@ -39,17 +39,17 @@ packages:
   flare_dart:
     dependency: transitive
     description:
-      name: flare_dart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.4.3"
+      path: "..\\..\\Documents\\Flutter\\Flare-Flutter-master\\Flare-Flutter\\flare_dart"
+      relative: true
+    source: path
+    version: "1.4.4"
   flare_flutter:
     dependency: "direct main"
     description:
-      name: flare_flutter
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.5.4"
+      path: "/Users/mandy/Documents/Flutter/Flare-Flutter-master/Flare-Flutter/flare_flutter"
+      relative: false
+    source: path
+    version: "1.5.5"
   flutter:
     dependency: "direct main"
     description: flutter

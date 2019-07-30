@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'flare_controller.dart';
+import 'package:flare_flutter/flare_controls.dart';
 
 class TrackingInput extends StatefulWidget {
 
@@ -11,29 +12,38 @@ class TrackingInput extends StatefulWidget {
 
 class TrackingState extends State<TrackingInput> {
 
-  AnimationControls _flareController;
+    ///these get set when we build the widget
+    double screenWidth = 0.0;
+    double screenHeight = 0.0;
 
-  ///the current number of glasses drunk
-  int currentWaterCount = 0;
+    ///let's set up all of the animation controllers
+    AnimationControls _flareController;
 
-  ///this will come from the selectedGlasses times ouncesPerGlass
-  /// we'll use this to calculate the transform of the water fill animation
-  int maxWaterCount = 0;
+    final FlareControls plusWaterControls = FlareControls();
+    final FlareControls minusWaterControls = FlareControls();
 
-  ///we'll default at 8, but this will change based on user input
-  int selectedGlasses = 8;
+    final FlareControls plusGoalControls = FlareControls();
+    final FlareControls minusGoalControls = FlareControls();
 
-  ///this doesn't change, hence the 'final', we always count 8 ounces per glass (it's assuming)
-  final ouncePerGlass = 8;
+    final FlareControls resetDayControls = FlareControls();
 
-  ///we'll use this to show the settings UI or hide it from view using a 'Visibility' widget
-  bool isTrayOpen = false;
+    ///the current number of glasses drunk
+    int currentWaterCount = 0;
+
+    ///this will come from the selectedGlasses times ouncesPerGlass
+    /// we'll use this to calculate the transform of the water fill animation
+    int maxWaterCount = 0;
+
+    ///we'll default at 8, but this will change based on user input
+    int selectedGlasses = 8;
+
+    ///this doesn't change, hence the 'final', we always count 8 ounces per glass (it's assuming)
+    final ouncePerGlass = 8;
+
 
   void initState() {
     _flareController = AnimationControls();
-    _getThingsOnStartup().then((value) {
-      playOnLoad();
-    });
+
     super.initState();
   }
 
@@ -42,38 +52,32 @@ class TrackingState extends State<TrackingInput> {
     super.dispose();
   }
 
-  Future _getThingsOnStartup() async {
-    await Future.delayed(Duration(seconds: 4));
-  }
-
-  void playOnLoad() {
-    _flareController.mixAnimation("ripple");
-  }
-
   ///this is a quick reset for the user, to reset the intake back to zero
   void _resetDay() {
     setState(() {
       currentWaterCount = 0;
       _flareController.resetWater();
-      _toggleTray(false);
     });
   }
 
   ///we'll use this to increase how much water the user has drunk, hooked via button
   void _incrementWater() {
     setState(() {
+
       if (currentWaterCount < selectedGlasses) {
         currentWaterCount = currentWaterCount + 1;
 
         double diff = currentWaterCount / selectedGlasses;
 
-        _flareController.mixAnimation("plus select");
-        _flareController.mixAnimation("ripple");
+        plusWaterControls.play("plus press");
+
+        _flareController.playAnimation("ripple");
 
         _flareController.updateWaterPercent(diff);
       }
+
       if (currentWaterCount == selectedGlasses) {
-        _flareController.mixAnimation("iceboy_win");
+        _flareController.playAnimation("iceboy_win");
       }
     });
   }
@@ -85,31 +89,32 @@ class TrackingState extends State<TrackingInput> {
         currentWaterCount = currentWaterCount - 1;
         double diff = currentWaterCount / selectedGlasses;
 
-        print("new - $diff");
         _flareController.updateWaterPercent(diff);
 
-        _flareController.mixAnimation("ripple");
+        _flareController.playAnimation("ripple");
       } else {
         currentWaterCount = 0;
       }
-      _flareController.mixAnimation("minus select");
+      minusWaterControls.play("minus press");
+
     });
   }
 
   ///user will push a button to increase how many glasses they want to drink per day
-  void _incrementGoal() {
-    setState(() {
+  void _incrementGoal(StateSetter updateModal) {
+    updateModal(() {
       if (selectedGlasses <= 25) {
         selectedGlasses = selectedGlasses + 1;
         calculateMaxOunces();
-        _flareController.mixAnimation("arrow right select");
+        plusGoalControls.play("arrow right press");
       }
     });
   }
 
   ///users will push a button to decrease how many glasses they want to drink per day
-  void _decrementGoal() {
-    setState(() {
+  void _decrementGoal(StateSetter updateModal) {
+    //setState(() {
+    updateModal(() {
       if (selectedGlasses > 0) {
         selectedGlasses = selectedGlasses - 1;
       }
@@ -117,20 +122,8 @@ class TrackingState extends State<TrackingInput> {
         selectedGlasses = 0;
       }
       calculateMaxOunces();
-      _flareController.mixAnimation("arrow left select");
-    });
-  }
+      minusGoalControls.play("arrow left press");
 
-  ///toggle on the settings tray to open or close
-  void _toggleTray(bool shouldOpen) {
-    setState(() {
-      if (shouldOpen == false) {
-        _flareController.mixAnimation("UI tray down");
-        isTrayOpen = false;
-      } else {
-        _flareController.mixAnimation("UI tray up");
-        isTrayOpen = true;
-      }
     });
   }
 
@@ -140,164 +133,276 @@ class TrackingState extends State<TrackingInput> {
 
   @override
   Widget build(BuildContext context) {
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
     return new Scaffold(
+        backgroundColor: Color.fromRGBO(93, 93, 93, 1),
         body: new Container(
           //Stack some widgets
-            child: Stack(fit: StackFit.expand, children: [
-              //The Flare Widget!
-              FlareActor("assets/WaterApp.flr",
-                  controller: _flareController,
-                  fit: BoxFit.contain,
-                  animation: "iceboy"
-              ),
+            color: Color.fromRGBO(93, 93, 93, 1),
+            child:
+            Stack(fit: StackFit.expand, children: [
+              new FlareActor("assets/WaterArtboards.flr",
+              controller: _flareController,
+              fit: BoxFit.contain,
+              animation: "iceboy",
+              artboard: "Artboard",
+            ),
               Container(
                   child: new Stack(
                       children: <Widget>[
-                        new Positioned(
-                            left: 167.0,
-                            top: 410,
-                            child: new Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-
-                                  ///Plus Button
-                                  new Container(child: new Visibility(child:
-                                  new FlatButton(
-
-                                    onPressed: _incrementWater,
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    padding: EdgeInsets.only(top: 50.0),
-
-                                  ),
-                                    visible: !isTrayOpen,),
-                                    width: 80.0,
-                                    height: 90.0,),
-                                  Padding(
-                                    padding: EdgeInsets.all(35.0),
-                                  ),
-
-                                  ///Minus Button
-                                  new Container(
-                                    child: new Visibility(child: new FlatButton(
-
-                                      onPressed: _decrementWater,
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      padding: EdgeInsets.only(top: 50.0),
-
-                                    )
-                                      , visible: !isTrayOpen,),
-                                    width: 80.0,
-                                    height: 90.0,),
-                                  Padding(
-                                    padding: EdgeInsets.all(15.0),
-                                  ),
-
-                                  ///Our 'Settings' Button
-                                  new Container(child: new Visibility(child:
-                                  new FlatButton(
-                                    onPressed: () => _toggleTray(true),
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-
-                                  ), visible: !isTrayOpen,),
-                                    width: 80.0,
-                                    height: 30.0,),
-
-                                ]
-                            )),
-                        new Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.all(120),
-                              ),
-
-                              ///Close Tray Button
-                              new Container(child:
-                              new Visibility(child:
-                              new FlatButton(
-                                onPressed: () => _toggleTray(false),
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-
-                              ), visible: isTrayOpen,),
-                                width: 80.0,
-                                height: 80.0,),
-
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(40, 90, 40, 0),
-                              ),
-                              Row(children: <Widget>[
-
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(45, 130, 40, 0),
-                                ),
-
-                                ///Decrease Goal Button
-                                new Container(
-                                  child: new Visibility(child: new FlatButton(
-
-                                    onPressed: _decrementGoal,
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    padding: EdgeInsets.only(top: 6.0),
-
-                                  ),
-                                      visible: isTrayOpen
-                                  ), width: 80.0, height: 90.0,),
-
-                                ///Text for how many glasses to drink
-                                new Container(child: new Visibility(
-                                    child: new Text(" $selectedGlasses ",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.white,
-                                          fontSize: 50.0,
-                                          height: 2.00
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    visible: isTrayOpen
-                                ), width: 70.0, height: 150.0,),
-
-                                ///Increase Goal Button
-                                new Container(child:
-                                new Visibility(
-                                    child: new FlatButton(
-
-                                      onPressed: _incrementGoal,
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                    ),
-                                    visible: isTrayOpen
-                                ), width: 80.0, height: 90.0,)
-                              ]),
-
-                              Padding(
-                                padding: EdgeInsets.all(0.0),
-                              ),
-
-                              ///Reset Progress Button
-                              new Container(child:
-                              new Visibility(child: new FlatButton(
-                                onPressed: _resetDay,
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                padding: EdgeInsets.only(top: 90.0),
-
-                              ),
-                                  visible: isTrayOpen
-                              ), width: 80.0, height: 65.0,)
-
-                            ])
-
+                        ///add our button widgets
+                        settingsButton(),
+                        addWaterBtn(),
+                        subWaterBtn(),
                       ])
               )
             ])
 
         )
+    );
+  }
+
+  ///set up our bottom sheet menu
+  void _showMenu() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter updateModal){
+              return Container(
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(93, 93, 93, 1),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    SizedBox(
+                        height: (56 * 6).toDouble(),
+                        child: Container(
+                            child: Stack(
+                              alignment: Alignment(0, 0),
+                              overflow: Overflow.clip,
+                              children: <Widget>[
+                                ///add each button/text widget
+                                baseText(),
+                                goalText(),
+                                increaseGoalBtn(updateModal),
+                                decreaseGoalBtn(updateModal),
+                                resetProgressBtn(),
+                              ],
+                            )
+                        )
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        });
+  }
+
+  Widget settingsButton() {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * .4,
+          top: screenHeight * .94,
+          child:  new RawMaterialButton(
+            constraints: BoxConstraints.tight(Size(95, 30)),
+            onPressed: _showMenu,
+            shape: new Border(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            elevation: 0.0,
+            child: new FlareActor("assets/WaterArtboards.flr",
+                fit: BoxFit.contain,
+                sizeFromArtboard: true,
+                artboard: "UI Ellipse"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget addWaterBtn() {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * .3,
+          top: screenHeight * .3,
+          child:  new RawMaterialButton(
+            constraints: BoxConstraints.tight(Size(200, 200)),
+            onPressed: _incrementWater,
+            shape: new Border(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            elevation: 0.0,
+            child: new FlareActor("assets/WaterArtboards.flr",
+                controller: plusWaterControls,
+                fit: BoxFit.contain,
+                animation: "plus press",
+                sizeFromArtboard: true,
+                artboard: "UI plus"),
+          ),
+        ),
+      ],
+    );
+  }
+  Widget subWaterBtn() {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * .3,
+          top: screenHeight * .6,
+          child:  new RawMaterialButton(
+            constraints: BoxConstraints.tight(Size(200, 200)),
+            onPressed: _decrementWater,
+            shape: new Border(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            elevation: 0.0,
+            child: new FlareActor("assets/WaterArtboards.flr",
+                controller: minusWaterControls,
+                fit: BoxFit.contain,
+                animation: "minus press",
+                sizeFromArtboard: true,
+                artboard: "UI minus"),
+          ),
+        ),
+      ],
+    );
+  }
+  Widget increaseGoalBtn(StateSetter updateModal) {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * .7,
+          top: screenHeight * .1,
+          child:  new RawMaterialButton(
+            constraints: BoxConstraints.tight(Size(95, 85)),
+            onPressed: () => _incrementGoal
+              (updateModal),
+            shape: new Border(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            elevation: 0.0,
+            child: new FlareActor("assets/WaterArtboards.flr",
+                controller: plusGoalControls,
+                fit: BoxFit.contain,
+                animation: "arrow right press",
+                sizeFromArtboard: true,
+                artboard: "UI arrow right"),
+          ),
+        ),
+      ],
+    );
+  }
+  Widget decreaseGoalBtn(StateSetter updateModal) {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * .1,
+          top: screenHeight * .1,
+          child:  new RawMaterialButton(
+            constraints: BoxConstraints.tight(Size(95, 85)),
+            onPressed: () => _decrementGoal
+              (updateModal),
+            shape: new Border(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            elevation: 0.0,
+            child: new FlareActor("assets/WaterArtboards.flr",
+                controller: minusGoalControls,
+                fit: BoxFit.contain,
+                animation: "arrow left press",
+                sizeFromArtboard: true,
+                artboard: "UI arrow left"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget resetProgressBtn() {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * .42,
+          top: screenHeight * .30,
+          child:  new RawMaterialButton(
+            constraints: BoxConstraints.tight(Size(95, 85)),
+            onPressed: _resetDay,
+            shape: new Border(),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            elevation: 0.0,
+            child: new FlareActor("assets/WaterArtboards.flr",
+                controller: resetDayControls,
+                fit: BoxFit.contain,
+                animation: "Untitled",
+                sizeFromArtboard: true,
+                artboard: "UI refresh"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget goalText() {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * .48,
+          top: screenHeight * .05,
+          child: new Text("$selectedGlasses",
+            style: TextStyle(
+                fontWeight: FontWeight.normal,
+                color: Colors.white,
+                fontSize: 50.0,
+                height: 2.00
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget baseText() {
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      fit: StackFit.expand,
+      children: <Widget>[
+        new Positioned(
+          left: screenWidth * -0.20,
+          top: screenHeight * -1.12,
+          child: Container(
+            width: 600,
+            height: 1200,
+            child: new FlareActor("assets/WaterArtboards.flr",
+                controller: resetDayControls,
+                fit: BoxFit.contain,
+                sizeFromArtboard: true,
+                artboard: "UI text"),
+          )
+        )
+      ],
     );
   }
 }
