@@ -131,87 +131,73 @@ class TrackingState extends State<TrackingInput> {
     maxWaterCount = (selectedGlasses * ouncePerGlass);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
-    return new Scaffold(
-        backgroundColor: Color.fromRGBO(93, 93, 93, 1),
-        body: new Container(
-          //Stack some widgets
-            color: Color.fromRGBO(93, 93, 93, 1),
-            child:
-            Stack(fit: StackFit.expand, children: [
-              new FlareActor("assets/WaterArtboards.flr",
-              controller: _flareController,
-              fit: BoxFit.contain,
-              animation: "iceboy",
-              artboard: "Artboard",
-            ),
-              Container(
-                  child: new Stack(
-                      children: <Widget>[
-                        ///add our button widgets
-                        settingsButton(),
-                        addWaterBtn(),
-                        subWaterBtn(),
-                      ])
-              )
-            ])
-
-        )
-    );
-  }
-
-  ///set up our bottom sheet menu
-  void _showMenu() {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, StateSetter updateModal){
-              return Container(
-                decoration: BoxDecoration(
-                  color: Color.fromRGBO(93, 93, 93, 1),
+    @override
+    Widget build(BuildContext context) {
+      screenWidth = MediaQuery.of(context).size.width;
+      screenHeight = MediaQuery.of(context).size.height;
+      return new Scaffold(
+          backgroundColor: Color.fromRGBO(93, 93, 93, 1),
+          body: new Container(
+            //Stack some widgets
+              color: Color.fromRGBO(93, 93, 93, 1),
+              child:
+              Stack(fit: StackFit.expand, children: [
+                new FlareActor("assets/WaterArtboards.flr",
+                  controller: _flareController,
+                  fit: BoxFit.contain,
+                  animation: "iceboy",
+                  artboard: "Artboard",
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(
-                        height: (56 * 6).toDouble(),
-                        child: Container(
-                            child: Stack(
-                              alignment: Alignment(0, 0),
-                              overflow: Overflow.clip,
-                              children: <Widget>[
-                                ///add each button/text widget
-                                baseText(),
-                                goalText(),
-                                increaseGoalBtn(updateModal),
-                                decreaseGoalBtn(updateModal),
-                                resetProgressBtn(),
-                              ],
-                            )
-                        )
-                    ),
+                    Spacer(),
+                    addWaterBtn(),
+                    subWaterBtn(),
+                    settingsButton(),
                   ],
-                ),
-              );
-            },
-          );
-        });
-  }
+                )
+
+
+              ])
+
+          )
+      );
+    }
+
+    ///set up our bottom sheet menu
+    void _showMenu() {
+      showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context){
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter updateModal){
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(93, 93, 93, 1),
+                  ),
+                  child: SizedBox(
+                      height: (56 * 6).toDouble(),
+                      child: Stack(
+                        alignment: Alignment(0, 0),
+                        overflow: Overflow.clip,
+                        children: <Widget>[
+                          baseText(),
+                          goalText(),
+                          increaseGoalBtn(updateModal),
+                          decreaseGoalBtn(updateModal),
+                          resetProgressBtn(),
+                        ],
+                      )
+                  ),
+                );
+              },
+            );
+          });
+    }
 
   Widget settingsButton() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
-          left: screenWidth * .4,
-          top: screenHeight * .94,
-          child:  new RawMaterialButton(
+    return new RawMaterialButton(
             constraints: BoxConstraints.tight(Size(95, 30)),
             onPressed: _showMenu,
             shape: new Border(),
@@ -222,48 +208,30 @@ class TrackingState extends State<TrackingInput> {
                 fit: BoxFit.contain,
                 sizeFromArtboard: true,
                 artboard: "UI Ellipse"),
-          ),
-        ),
-      ],
+
     );
   }
 
-  Widget addWaterBtn() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
-          left: screenWidth * .3,
-          top: screenHeight * .3,
-          child:  new RawMaterialButton(
-            constraints: BoxConstraints.tight(Size(200, 200)),
-            onPressed: _incrementWater,
-            shape: new Border(),
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            elevation: 0.0,
-            child: new FlareActor("assets/WaterArtboards.flr",
-                controller: plusWaterControls,
-                fit: BoxFit.contain,
-                animation: "plus press",
-                sizeFromArtboard: true,
-                artboard: "UI plus"),
-          ),
-        ),
-      ],
-    );
-  }
+    Widget addWaterBtn() {
+      return new RawMaterialButton(
+              constraints: BoxConstraints.tight(Size(150, 150)),
+              onPressed: _incrementWater,
+              shape: new Border(),
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              elevation: 0.0,
+              child: new FlareActor("assets/WaterArtboards.flr",
+                  controller: plusWaterControls,
+                  fit: BoxFit.contain,
+                  animation: "plus press",
+                  sizeFromArtboard: false,
+                  artboard: "UI plus"),
+
+      );
+    }
   Widget subWaterBtn() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
-          left: screenWidth * .3,
-          top: screenHeight * .6,
-          child:  new RawMaterialButton(
-            constraints: BoxConstraints.tight(Size(200, 200)),
+    return RawMaterialButton(
+            constraints: BoxConstraints.tight(Size(150, 150)),
             onPressed: _decrementWater,
             shape: new Border(),
             highlightColor: Colors.transparent,
@@ -275,121 +243,92 @@ class TrackingState extends State<TrackingInput> {
                 animation: "minus press",
                 sizeFromArtboard: true,
                 artboard: "UI minus"),
-          ),
-        ),
-      ],
-    );
-  }
-  Widget increaseGoalBtn(StateSetter updateModal) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
-          left: screenWidth * .7,
-          top: screenHeight * .1,
-          child:  new RawMaterialButton(
-            constraints: BoxConstraints.tight(Size(95, 85)),
-            onPressed: () => _incrementGoal
-              (updateModal),
-            shape: new Border(),
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            elevation: 0.0,
-            child: new FlareActor("assets/WaterArtboards.flr",
-                controller: plusGoalControls,
-                fit: BoxFit.contain,
-                animation: "arrow right press",
-                sizeFromArtboard: true,
-                artboard: "UI arrow right"),
-          ),
-        ),
-      ],
-    );
-  }
-  Widget decreaseGoalBtn(StateSetter updateModal) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
-          left: screenWidth * .1,
-          top: screenHeight * .1,
-          child:  new RawMaterialButton(
-            constraints: BoxConstraints.tight(Size(95, 85)),
-            onPressed: () => _decrementGoal
-              (updateModal),
-            shape: new Border(),
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            elevation: 0.0,
-            child: new FlareActor("assets/WaterArtboards.flr",
-                controller: minusGoalControls,
-                fit: BoxFit.contain,
-                animation: "arrow left press",
-                sizeFromArtboard: true,
-                artboard: "UI arrow left"),
-          ),
-        ),
-      ],
+
     );
   }
 
-  Widget resetProgressBtn() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
-          left: screenWidth * .42,
-          top: screenHeight * .30,
-          child:  new RawMaterialButton(
-            constraints: BoxConstraints.tight(Size(95, 85)),
-            onPressed: _resetDay,
-            shape: new Border(),
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            elevation: 0.0,
-            child: new FlareActor("assets/WaterArtboards.flr",
-                controller: resetDayControls,
-                fit: BoxFit.contain,
-                animation: "Untitled",
-                sizeFromArtboard: true,
-                artboard: "UI refresh"),
-          ),
+    Widget increaseGoalBtn(StateSetter updateModal) {
+      return Positioned(
+        left: screenWidth * .7,
+        top: screenHeight * .1,
+        child:  new RawMaterialButton(
+          constraints: BoxConstraints.tight(Size(95, 85)),
+          onPressed: () => _incrementGoal
+            (updateModal),
+          shape: new Border(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          elevation: 0.0,
+          child: new FlareActor("assets/WaterArtboards.flr",
+              controller: plusGoalControls,
+              fit: BoxFit.contain,
+              animation: "arrow right press",
+              sizeFromArtboard: true,
+              artboard: "UI arrow right"),
         ),
-      ],
-    );
-  }
-
-  Widget goalText() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
-          left: screenWidth * .48,
-          top: screenHeight * .05,
-          child: new Text("$selectedGlasses",
-            style: TextStyle(
-                fontWeight: FontWeight.normal,
-                color: Colors.white,
-                fontSize: 50.0,
-                height: 2.00
-            ),
-            textAlign: TextAlign.center,
-          ),
+      );
+    }
+    Widget decreaseGoalBtn(StateSetter updateModal) {
+      return Positioned(
+        left: screenWidth * .1,
+        top: screenHeight * .1,
+        child:  new RawMaterialButton(
+          constraints: BoxConstraints.tight(Size(95, 85)),
+          onPressed: () => _decrementGoal
+            (updateModal),
+          shape: new Border(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          elevation: 0.0,
+          child: new FlareActor("assets/WaterArtboards.flr",
+              controller: minusGoalControls,
+              fit: BoxFit.contain,
+              animation: "arrow left press",
+              sizeFromArtboard: true,
+              artboard: "UI arrow left"),
         ),
-      ],
-    );
-  }
 
-  Widget baseText() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      fit: StackFit.expand,
-      children: <Widget>[
-        new Positioned(
+      );
+    }
+    Widget resetProgressBtn() {
+      return Positioned(
+        left: screenWidth * .42,
+        top: screenHeight * .30,
+        child:  new RawMaterialButton(
+          constraints: BoxConstraints.tight(Size(95, 85)),
+          onPressed: _resetDay,
+          shape: new Border(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          elevation: 0.0,
+          child: new FlareActor("assets/WaterArtboards.flr",
+              controller: resetDayControls,
+              fit: BoxFit.contain,
+              animation: "Untitled",
+              sizeFromArtboard: true,
+              artboard: "UI refresh"),
+        ),
+      );
+    }
+    Widget goalText() {
+      return Positioned(
+        left: screenWidth * .48,
+        top: screenHeight * .05,
+        child: new Text("$selectedGlasses",
+          style: TextStyle(
+              fontWeight: FontWeight.normal,
+              color: Colors.white,
+              fontSize: 50.0,
+              height: 2.00
+          ),
+          textAlign: TextAlign.center,
+        ),
+
+
+      );
+    }
+    Widget baseText() {
+      return Positioned(
           left: screenWidth * -0.20,
           top: screenHeight * -1.12,
           child: Container(
@@ -401,8 +340,8 @@ class TrackingState extends State<TrackingInput> {
                 sizeFromArtboard: true,
                 artboard: "UI text"),
           )
-        )
-      ],
-    );
-  }
+
+
+      );
+    }
 }
