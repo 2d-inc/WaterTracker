@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flare_flutter/flare_actor.dart';
-import 'flare_controller.dart';
 import 'package:flare_flutter/flare_controls.dart';
+import 'flare_controller.dart';
 
 class TrackingInput extends StatefulWidget {
   @override
-  TrackingState createState() => new TrackingState();
+  TrackingState createState() => TrackingState();
 }
 
 class TrackingState extends State<TrackingInput> {
@@ -34,18 +34,15 @@ class TrackingState extends State<TrackingInput> {
   ///we'll default at 8, but this will change based on user input
   int selectedGlasses = 8;
 
-  ///this doesn't change, hence the 'final', we always count 8 ounces per glass (it's assuming)
-  final ouncePerGlass = 8;
+  ///this doesn't change, hence the 'static const', we always count 8 ounces
+  ///per glass (it's assuming)
+  static const int ouncePerGlass = 8;
 
+  @override
   void initState() {
     _flareController = AnimationControls();
 
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   ///this is a quick reset for the user, to reset the intake back to zero
@@ -56,7 +53,8 @@ class TrackingState extends State<TrackingInput> {
     });
   }
 
-  ///we'll use this to increase how much water the user has drunk, hooked via button
+  ///we'll use this to increase how much water the user has drunk, hooked
+  ///via button
   void _incrementWater() {
     setState(() {
       if (currentWaterCount < selectedGlasses) {
@@ -94,7 +92,8 @@ class TrackingState extends State<TrackingInput> {
     });
   }
 
-  ///user will push a button to increase how many glasses they want to drink per day
+  ///user will push a button to increase how many glasses they want to
+  ///drink per day
   void _incrementGoal(StateSetter updateModal) {
     updateModal(() {
       if (selectedGlasses <= 25) {
@@ -105,7 +104,8 @@ class TrackingState extends State<TrackingInput> {
     });
   }
 
-  ///users will push a button to decrease how many glasses they want to drink per day
+  ///users will push a button to decrease how many glasses they want to
+  ///drink per day
   void _decrementGoal(StateSetter updateModal) {
     //setState(() {
     updateModal(() {
@@ -120,90 +120,150 @@ class TrackingState extends State<TrackingInput> {
   }
 
   void calculateMaxOunces() {
-    maxWaterCount = (selectedGlasses * ouncePerGlass);
+    maxWaterCount = selectedGlasses * ouncePerGlass;
   }
 
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
-    return new Scaffold(
-        backgroundColor: Color.fromRGBO(93, 93, 93, 1),
-        body: new Container(
-            //Stack some widgets
-            color: Color.fromRGBO(93, 93, 93, 1),
-            child: Stack(fit: StackFit.expand, children: [
-              new FlareActor(
-                "assets/WaterArtboards.flr",
-                controller: _flareController,
-                fit: BoxFit.contain,
-                animation: "iceboy",
-                artboard: "Artboard",
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Spacer(),
-                  addWaterBtn(),
-                  subWaterBtn(),
-                  settingsButton(),
-                ],
-              )
-            ])));
+    return Scaffold(
+      backgroundColor: const Color.fromRGBO(93, 93, 93, 1),
+      body: Container(
+        //Stack some widgets
+        color: const Color.fromRGBO(93, 93, 93, 1),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            FlareActor(
+              "assets/WaterArtboards.flr",
+              controller: _flareController,
+              fit: BoxFit.contain,
+              animation: "iceboy",
+              artboard: "Artboard",
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Spacer(),
+                // Might want to consider changing these to individual widgets
+                addWaterBtn(),
+                subWaterBtn(),
+                settingsButton(),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _incSelectedGlasses(StateSetter updateModal, int value) {
+    updateModal(() {
+      selectedGlasses = (selectedGlasses + value).clamp(0, 26).toInt();
+      calculateMaxOunces();
+    });
   }
 
   ///set up our bottom sheet menu
   void _showMenu() {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, StateSetter updateModal) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Color.fromRGBO(93, 93, 93, 1),
-                ),
-                child: SizedBox(
-                    height: (56 * 6).toDouble(),
-                    child: Stack(
-                      alignment: Alignment(0, 0),
-                      overflow: Overflow.clip,
-                      children: <Widget>[
-                        baseText(),
-                        goalText(),
-                        increaseGoalBtn(updateModal),
-                        decreaseGoalBtn(updateModal),
-                        resetProgressBtn(),
-                      ],
-                    )),
-              );
-            },
-          );
-        });
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter updateModal) {
+            return Container(
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(93, 93, 93, 1),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Text(
+                    "Set Target",
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white,
+                        fontSize: 24.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  // Some vertical padding between text and buttons row
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      FlareWaterTrackButton(
+                        artboard: "UI arrow left",
+                        pressAnimation: "arrow left press",
+                        onPressed: () => _incSelectedGlasses(updateModal, -1),
+                      ),
+                      Expanded(
+                        child: Text(
+                          selectedGlasses.toString(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.white,
+                              fontSize: 40.0),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      FlareWaterTrackButton(
+                        artboard: "UI arrow right",
+                        pressAnimation: "arrow right press",
+                        onPressed: () => _incSelectedGlasses(updateModal, 1),
+                      ),
+                    ],
+                  ),
+                  // Some vertical padding between text and buttons row
+                  const SizedBox(height: 20),
+                  Text(
+                    "/glasses",
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white,
+                        fontSize: 20.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  // Some vertical padding between text and buttons row
+                  const SizedBox(height: 20),
+                  FlareWaterTrackButton(
+                    artboard: "UI refresh",
+                    onPressed: () {
+                      _resetDay();
+                      // close modal
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget settingsButton() {
-    return new RawMaterialButton(
+    return RawMaterialButton(
       constraints: BoxConstraints.tight(Size(95, 30)),
       onPressed: _showMenu,
-      shape: new Border(),
+      shape: Border(),
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       elevation: 0.0,
-      child: new FlareActor("assets/WaterArtboards.flr",
+      child: FlareActor("assets/WaterArtboards.flr",
           fit: BoxFit.contain, sizeFromArtboard: true, artboard: "UI Ellipse"),
     );
   }
 
   Widget addWaterBtn() {
-    return new RawMaterialButton(
-      constraints: BoxConstraints.tight(Size(150, 150)),
+    return RawMaterialButton(
+      constraints: BoxConstraints.tight(const Size(150, 150)),
       onPressed: _incrementWater,
-      shape: new Border(),
+      shape: Border(),
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       elevation: 0.0,
-      child: new FlareActor("assets/WaterArtboards.flr",
+      child: FlareActor("assets/WaterArtboards.flr",
           controller: plusWaterControls,
           fit: BoxFit.contain,
           animation: "plus press",
@@ -214,13 +274,13 @@ class TrackingState extends State<TrackingInput> {
 
   Widget subWaterBtn() {
     return RawMaterialButton(
-      constraints: BoxConstraints.tight(Size(150, 150)),
+      constraints: BoxConstraints.tight(const Size(150, 150)),
       onPressed: _decrementWater,
-      shape: new Border(),
+      shape: Border(),
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       elevation: 0.0,
-      child: new FlareActor("assets/WaterArtboards.flr",
+      child: FlareActor("assets/WaterArtboards.flr",
           controller: minusWaterControls,
           fit: BoxFit.contain,
           animation: "minus press",
@@ -233,14 +293,14 @@ class TrackingState extends State<TrackingInput> {
     return Positioned(
       left: screenWidth * .7,
       top: screenHeight * .1,
-      child: new RawMaterialButton(
-        constraints: BoxConstraints.tight(Size(95, 85)),
+      child: RawMaterialButton(
+        constraints: BoxConstraints.tight(const Size(95, 85)),
         onPressed: () => _incrementGoal(updateModal),
-        shape: new Border(),
+        shape: Border(),
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         elevation: 0.0,
-        child: new FlareActor("assets/WaterArtboards.flr",
+        child: FlareActor("assets/WaterArtboards.flr",
             controller: plusGoalControls,
             fit: BoxFit.contain,
             animation: "arrow right press",
@@ -254,14 +314,14 @@ class TrackingState extends State<TrackingInput> {
     return Positioned(
       left: screenWidth * .1,
       top: screenHeight * .1,
-      child: new RawMaterialButton(
-        constraints: BoxConstraints.tight(Size(95, 85)),
+      child: RawMaterialButton(
+        constraints: BoxConstraints.tight(const Size(95, 85)),
         onPressed: () => _decrementGoal(updateModal),
-        shape: new Border(),
+        shape: Border(),
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         elevation: 0.0,
-        child: new FlareActor("assets/WaterArtboards.flr",
+        child: FlareActor("assets/WaterArtboards.flr",
             controller: minusGoalControls,
             fit: BoxFit.contain,
             animation: "arrow left press",
@@ -275,14 +335,14 @@ class TrackingState extends State<TrackingInput> {
     return Positioned(
       left: screenWidth * .42,
       top: screenHeight * .30,
-      child: new RawMaterialButton(
-        constraints: BoxConstraints.tight(Size(95, 85)),
+      child: RawMaterialButton(
+        constraints: BoxConstraints.tight(const Size(95, 85)),
         onPressed: _resetDay,
-        shape: new Border(),
+        shape: Border(),
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         elevation: 0.0,
-        child: new FlareActor("assets/WaterArtboards.flr",
+        child: FlareActor("assets/WaterArtboards.flr",
             controller: resetDayControls,
             fit: BoxFit.contain,
             animation: "Untitled",
@@ -291,35 +351,39 @@ class TrackingState extends State<TrackingInput> {
       ),
     );
   }
+}
 
-  Widget goalText() {
-    return Positioned(
-      left: screenWidth * .48,
-      top: screenHeight * .05,
-      child: new Text(
-        "$selectedGlasses",
-        style: TextStyle(
-            fontWeight: FontWeight.normal,
-            color: Colors.white,
-            fontSize: 50.0,
-            height: 2.00),
-        textAlign: TextAlign.center,
-      ),
+/// Button with a Flare widget that automatically plays
+/// a Flare animation when pressed. Specify which animation
+/// via [pressAnimation] and the [artboard] it's in.
+class FlareWaterTrackButton extends StatefulWidget {
+  final String pressAnimation;
+  final String artboard;
+  final VoidCallback onPressed;
+  const FlareWaterTrackButton(
+      {this.artboard, this.pressAnimation, this.onPressed});
+
+  @override
+  _FlareWaterTrackButtonState createState() => _FlareWaterTrackButtonState();
+}
+
+class _FlareWaterTrackButtonState extends State<FlareWaterTrackButton> {
+  final _controller = FlareControls();
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      constraints: BoxConstraints.tight(const Size(95, 85)),
+      onPressed: () {
+        _controller.play(widget.pressAnimation);
+        widget.onPressed?.call();
+      },
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      child: FlareActor("assets/WaterArtboards.flr",
+          controller: _controller,
+          fit: BoxFit.contain,
+          artboard: widget.artboard),
     );
-  }
-
-  Widget baseText() {
-    return Positioned(
-        left: screenWidth * -0.20,
-        top: screenHeight * -1.12,
-        child: Container(
-          width: 600,
-          height: 1200,
-          child: new FlareActor("assets/WaterArtboards.flr",
-              controller: resetDayControls,
-              fit: BoxFit.contain,
-              sizeFromArtboard: true,
-              artboard: "UI text"),
-        ));
   }
 }
