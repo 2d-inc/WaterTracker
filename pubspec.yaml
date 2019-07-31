@@ -19,8 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flare_flutter:
-        path: /Users/mandy/Documents/Flutter/Flare-Flutter-master/Flare-Flutter/flare_flutter
+  flare_flutter: ^1.5.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
