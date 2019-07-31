@@ -19,11 +19,6 @@ class TrackingState extends State<TrackingInput> {
   final FlareControls plusWaterControls = FlareControls();
   final FlareControls minusWaterControls = FlareControls();
 
-  final FlareControls plusGoalControls = FlareControls();
-  final FlareControls minusGoalControls = FlareControls();
-
-  final FlareControls resetDayControls = FlareControls();
-
   ///the current number of glasses drunk
   int currentWaterCount = 0;
 
@@ -89,33 +84,6 @@ class TrackingState extends State<TrackingInput> {
         currentWaterCount = 0;
       }
       minusWaterControls.play("minus press");
-    });
-  }
-
-  ///user will push a button to increase how many glasses they want to
-  ///drink per day
-  void _incrementGoal(StateSetter updateModal) {
-    updateModal(() {
-      if (selectedGlasses <= 25) {
-        selectedGlasses = selectedGlasses + 1;
-        calculateMaxOunces();
-        plusGoalControls.play("arrow right press");
-      }
-    });
-  }
-
-  ///users will push a button to decrease how many glasses they want to
-  ///drink per day
-  void _decrementGoal(StateSetter updateModal) {
-    //setState(() {
-    updateModal(() {
-      if (selectedGlasses > 0) {
-        selectedGlasses = selectedGlasses - 1;
-      } else {
-        selectedGlasses = 0;
-      }
-      calculateMaxOunces();
-      minusGoalControls.play("arrow left press");
     });
   }
 
@@ -286,69 +254,6 @@ class TrackingState extends State<TrackingInput> {
           animation: "minus press",
           sizeFromArtboard: true,
           artboard: "UI minus"),
-    );
-  }
-
-  Widget increaseGoalBtn(StateSetter updateModal) {
-    return Positioned(
-      left: screenWidth * .7,
-      top: screenHeight * .1,
-      child: RawMaterialButton(
-        constraints: BoxConstraints.tight(const Size(95, 85)),
-        onPressed: () => _incrementGoal(updateModal),
-        shape: Border(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        elevation: 0.0,
-        child: FlareActor("assets/WaterArtboards.flr",
-            controller: plusGoalControls,
-            fit: BoxFit.contain,
-            animation: "arrow right press",
-            sizeFromArtboard: true,
-            artboard: "UI arrow right"),
-      ),
-    );
-  }
-
-  Widget decreaseGoalBtn(StateSetter updateModal) {
-    return Positioned(
-      left: screenWidth * .1,
-      top: screenHeight * .1,
-      child: RawMaterialButton(
-        constraints: BoxConstraints.tight(const Size(95, 85)),
-        onPressed: () => _decrementGoal(updateModal),
-        shape: Border(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        elevation: 0.0,
-        child: FlareActor("assets/WaterArtboards.flr",
-            controller: minusGoalControls,
-            fit: BoxFit.contain,
-            animation: "arrow left press",
-            sizeFromArtboard: true,
-            artboard: "UI arrow left"),
-      ),
-    );
-  }
-
-  Widget resetProgressBtn() {
-    return Positioned(
-      left: screenWidth * .42,
-      top: screenHeight * .30,
-      child: RawMaterialButton(
-        constraints: BoxConstraints.tight(const Size(95, 85)),
-        onPressed: _resetDay,
-        shape: Border(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        elevation: 0.0,
-        child: FlareActor("assets/WaterArtboards.flr",
-            controller: resetDayControls,
-            fit: BoxFit.contain,
-            animation: "Untitled",
-            sizeFromArtboard: true,
-            artboard: "UI refresh"),
-      ),
     );
   }
 }
