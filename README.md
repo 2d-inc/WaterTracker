@@ -1,8 +1,12 @@
 # water_tracker
 
 A Flutter and Flare app that tracks your water intake.
+- [Tutorial: Medium Article](https://medium.com/@mandylowry/building-a-water-tracking-app-with-flare-flutter-f03de436dba3)
 
-## Getting Started
+
+<img align="right" src="https://imgur.com/7uSOiLL" height="250">
+
+## Flutter Getting Started
 
 This project is a starting point for a Flutter application.
 
