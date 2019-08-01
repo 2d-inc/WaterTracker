@@ -92,6 +92,13 @@ class TrackingState extends State<TrackingInput> {
     maxWaterCount = selectedGlasses * ouncePerGlass;
   }
 
+  void _incSelectedGlasses(StateSetter updateModal, int value) {
+    updateModal(() {
+      selectedGlasses = (selectedGlasses + value).clamp(0, 26).toInt();
+      calculateMaxOunces();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -126,13 +133,6 @@ class TrackingState extends State<TrackingInput> {
         ),
       ),
     );
-  }
-
-  void _incSelectedGlasses(StateSetter updateModal, int value) {
-    updateModal(() {
-      selectedGlasses = (selectedGlasses + value).clamp(0, 26).toInt();
-      calculateMaxOunces();
-    });
   }
 
   ///set up our bottom sheet menu
@@ -198,7 +198,6 @@ class TrackingState extends State<TrackingInput> {
                   // Some vertical padding between text and buttons row
                   const SizedBox(height: 20),
                   ///our Flare button that closes our menu
-                  ///TODO: Here is your challenge!
                   FlareWaterTrackButton(
                     artboard: "UI refresh",
                     onPressed: () {
