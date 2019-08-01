@@ -136,6 +136,7 @@ class TrackingState extends State<TrackingInput> {
   }
 
   ///set up our bottom sheet menu
+  ///will be visible when the ellipses button is pressed
   void _showMenu() {
     showModalBottomSheet<void>(
       context: context,
