@@ -13,9 +13,10 @@ class TrackingState extends State<TrackingInput> {
   double screenWidth = 0.0;
   double screenHeight = 0.0;
 
-  ///let's set up all of the animation controllers
+  ///this is the animation controller for the water and iceBoy
   AnimationControls _flareController;
 
+  ///an example of how to set up individual controllers
   final FlareControls plusWaterControls = FlareControls();
   final FlareControls minusWaterControls = FlareControls();
 
@@ -98,11 +99,12 @@ class TrackingState extends State<TrackingInput> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(93, 93, 93, 1),
       body: Container(
-        //Stack some widgets
+        ///Stack some widgets
         color: const Color.fromRGBO(93, 93, 93, 1),
         child: Stack(
           fit: StackFit.expand,
           children: [
+            ///this is our main artboard with iceboy and the water fill
             FlareActor(
               "assets/WaterArtboards.flr",
               controller: _flareController,
@@ -114,7 +116,7 @@ class TrackingState extends State<TrackingInput> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Spacer(),
-                // Might want to consider changing these to individual widgets
+                ///Each widget on the main view
                 addWaterBtn(),
                 subWaterBtn(),
                 settingsButton(),
@@ -159,6 +161,7 @@ class TrackingState extends State<TrackingInput> {
                   const SizedBox(height: 20),
                   Row(
                     children: [
+                      ///our animated button that increases your goal
                       FlareWaterTrackButton(
                         artboard: "UI arrow left",
                         pressAnimation: "arrow left press",
@@ -174,6 +177,7 @@ class TrackingState extends State<TrackingInput> {
                           textAlign: TextAlign.center,
                         ),
                       ),
+                      ///our animated button that decreases your goal
                       FlareWaterTrackButton(
                         artboard: "UI arrow right",
                         pressAnimation: "arrow right press",
@@ -193,6 +197,8 @@ class TrackingState extends State<TrackingInput> {
                   ),
                   // Some vertical padding between text and buttons row
                   const SizedBox(height: 20),
+                  ///our Flare button that closes our menu
+                  ///TODO: Here is your challenge!
                   FlareWaterTrackButton(
                     artboard: "UI refresh",
                     onPressed: () {
@@ -219,7 +225,9 @@ class TrackingState extends State<TrackingInput> {
       splashColor: Colors.transparent,
       elevation: 0.0,
       child: FlareActor("assets/WaterArtboards.flr",
-          fit: BoxFit.contain, sizeFromArtboard: true, artboard: "UI Ellipse"),
+          fit: BoxFit.contain,
+          sizeFromArtboard: true,
+          artboard: "UI Ellipse"),
     );
   }
 
