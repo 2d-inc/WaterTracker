@@ -1,8 +1,7 @@
 # Water Tracker App
 
 A Flutter and Flare app that tracks your water intake.
-- Read the Medium [Tutorial](https://medium
-.com/@mandylowry/building-a-water-tracking-app-with-flare-flutter-f03de436dba3)
+- Read the Medium [Tutorial](https://medium.com/@mandylowry/building-a-water-tracking-app-with-flare-flutter-f03de436dba3)
 - Fork the [Flare Public File](https://www.2dimensions.com/a/BlackHive/files/flare/waterartboards)
 
 <img align="right" src="https://i.imgur.com/7uSOiLL.gif" height="250">
@@ -28,5 +27,3 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.io/docs), which offers tutorials, 
 samples, guidance on mobile development, and a full API reference.
 =======
-# FlareWaterTracker
-A quick tutorial on using interactive Flare components in Flutter
